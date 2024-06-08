@@ -1,0 +1,19 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "idf.adapterTargetName": "esp32",
+    "idf.customExtraPaths": "d:\\Projects\\expressif\\.expressif\\tools\\xtensa-esp-elf-gdb\\14.2_20240403\\xtensa-esp-elf-gdb\\bin;d:\\Projects\\expressif\\.expressif\\tools\\riscv32-esp-elf-gdb\\14.2_20240403\\riscv32-esp-elf-gdb\\bin;d:\\Projects\\expressif\\.expressif\\tools\\xtensa-esp-elf\\esp-13.2.0_20240305\\xtensa-esp-elf\\bin;d:\\Projects\\expressif\\.expressif\\tools\\riscv32-esp-elf\\esp-13.2.0_20240305\\riscv32-esp-elf\\bin;d:\\Projects\\expressif\\.expressif\\tools\\esp32ulp-elf\\2.38_20240113\\esp32ulp-elf\\bin;d:\\Projects\\expressif\\.expressif\\tools\\cmake\\3.24.0\\bin;d:\\Projects\\expressif\\.expressif\\tools\\openocd-esp32\\v0.12.0-esp32-20240318\\openocd-esp32\\bin;d:\\Projects\\expressif\\.expressif\\tools\\ninja\\1.11.1;d:\\Projects\\expressif\\.expressif\\tools\\idf-exe\\1.0.3;d:\\Projects\\expressif\\.expressif\\tools\\ccache\\4.8\\ccache-4.8-windows-x86_64;d:\\Projects\\expressif\\.expressif\\tools\\dfu-util\\0.11\\dfu-util-0.11-win64;d:\\Projects\\expressif\\.expressif\\tools\\esp-rom-elfs\\20240305",
+    "idf.customExtraVars": {
+        "OPENOCD_SCRIPTS": "d:\\Projects\\expressif\\.expressif\\tools\\openocd-esp32\\v0.12.0-esp32-20240318/openocd-esp32/share/openocd/scripts",
+        "IDF_CCACHE_ENABLE": "1",
+        "ESP_ROM_ELF_DIR": "d:\\Projects\\expressif\\.expressif\\tools\\esp-rom-elfs\\20240305/"
+    },
+    "idf.espIdfPathWin": "d:\\Projects\\expressif\\v5.3\\esp-idf",
+    "idf.openOcdConfigs": [
+        "interface/ftdi/esp32_devkitj_v1.cfg",
+        "target/esp32.cfg"
+    ],
+    "idf.pythonBinPathWin": "d:\\Projects\\expressif\\.expressif\\python_env\\idf5.3_py3.11_env\\Scripts\\python.exe",
+    "idf.toolsPathWin": "d:\\Projects\\expressif\\.expressif",
+    "idf.flashType": "UART",
+    "idf.portWin": "COM3"
+}
