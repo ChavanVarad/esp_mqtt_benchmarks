@@ -15,8 +15,5 @@
     "idf.pythonBinPathWin": "d:\\Projects\\expressif\\.expressif\\python_env\\idf5.3_py3.11_env\\Scripts\\python.exe",
     "idf.toolsPathWin": "d:\\Projects\\expressif\\.expressif",
     "idf.flashType": "UART",
-    "idf.portWin": "COM3",
-    "files.associations": {
-        "sync_time.h": "c"
-    }
+    "idf.portWin": "COM3"
 }
