@@ -201,9 +201,6 @@ fail:
 
 static esp_err_t wifi_init_sta(void)
 {
-#if defined(CONFIG_WIREGUARD_ESP_TCPIP_ADAPTER)
-    return wifi_init_tcpip_adaptor();
-#endif
 #if defined(CONFIG_WIREGUARD_ESP_NETIF)
     return wifi_init_netif();
 #endif
