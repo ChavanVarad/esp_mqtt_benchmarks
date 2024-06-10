@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "demo",
-    "project_version":    "cb0fc3d-dirty",
+    "project_version":    "c781511-dirty",
     "project_path":       "D:/Projects/expressif/projects/espidf-wireguard_benchmark",
     "idf_path":           "D:/Projects/expressif/v5.3/esp-idf",
     "build_dir":          "D:/Projects/expressif/projects/espidf-wireguard_benchmark/build",
@@ -1165,7 +1165,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "file": "D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/main/libmain.a",
-            "sources": [ "D:/Projects/expressif/projects/espidf-wireguard_benchmark/main/main.c", "D:/Projects/expressif/projects/espidf-wireguard_benchmark/main/sync_time.c" ],
+            "sources": [ "D:/Projects/expressif/projects/espidf-wireguard_benchmark/main/ping_functions.c", "D:/Projects/expressif/projects/espidf-wireguard_benchmark/main/main.c", "D:/Projects/expressif/projects/espidf-wireguard_benchmark/main/sync_time.c" ],
             "include_dirs": [ "." ]
         },
         "mbedtls": {

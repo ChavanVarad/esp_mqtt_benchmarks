@@ -20,21 +20,16 @@
 #include <esp_wifi.h>
 #include <nvs_flash.h>
 #include <lwip/netdb.h>
-#include <ping/ping_sock.h>
 
 #include <esp_wireguard.h>
 #include "sync_time.h"
+#include "ping_functions.h"
 
 //Keep track of data and time
 
 static const char *TAG = "espidf-wg";
 static int s_retry_num = 0;
 static wireguard_config_t wg_config = ESP_WIREGUARD_CONFIG_DEFAULT();
-
-
-static uint32_t total_data_received = 0;
-static struct timeval start_time, end_time;
-static SemaphoreHandle_t throughput_semaphore;
 
 
 #define EXAMPLE_ESP_WIFI_SSID      CONFIG_ESP_WIFI_SSID
@@ -206,121 +201,6 @@ static esp_err_t wifi_init_sta(void)
 #endif
 }
 
-//Track data and time, total data received in the total_data_received variable
-static void test_on_ping_success(esp_ping_handle_t hdl, void *args)
-{
-    uint8_t ttl;
-    uint16_t seqno;
-    uint32_t elapsed_time, recv_len;
-    ip_addr_t target_addr;
-    esp_ping_get_profile(hdl, ESP_PING_PROF_SEQNO, &seqno, sizeof(seqno));
-    esp_ping_get_profile(hdl, ESP_PING_PROF_TTL, &ttl, sizeof(ttl));
-    esp_ping_get_profile(hdl, ESP_PING_PROF_IPADDR, &target_addr, sizeof(target_addr));
-    esp_ping_get_profile(hdl, ESP_PING_PROF_SIZE, &recv_len, sizeof(recv_len));
-    esp_ping_get_profile(hdl, ESP_PING_PROF_TIMEGAP, &elapsed_time, sizeof(elapsed_time));
-    ESP_LOGI(TAG, "%" PRIu32 " bytes from %s icmp_seq=%" PRIu16 " ttl=%" PRIi8 " time=%" PRIu32 " ms",
-           recv_len, ipaddr_ntoa(&target_addr), seqno, ttl, elapsed_time);
-
-    xSemaphoreTake(throughput_semaphore, portMAX_DELAY);
-    total_data_received += recv_len;
-    xSemaphoreGive(throughput_semaphore);
-}
-
-static void test_on_ping_timeout(esp_ping_handle_t hdl, void *args)
-{
-    uint16_t seqno;
-    ip_addr_t target_addr;
-    esp_ping_get_profile(hdl, ESP_PING_PROF_SEQNO, &seqno, sizeof(seqno));
-    esp_ping_get_profile(hdl, ESP_PING_PROF_IPADDR, &target_addr, sizeof(target_addr));
-    ESP_LOGI(TAG, "From %s icmp_seq=%" PRIu16 " timeout", ipaddr_ntoa(&target_addr), seqno);
-}
-
-
-//calculate the throughput as bytes per second and log it
-static void test_on_ping_end(esp_ping_handle_t hdl, void *args)
-{
-    uint32_t transmitted;
-    uint32_t received;
-    uint32_t total_time_ms;
-
-    esp_ping_get_profile(hdl, ESP_PING_PROF_REQUEST, &transmitted, sizeof(transmitted));
-    esp_ping_get_profile(hdl, ESP_PING_PROF_REPLY, &received, sizeof(received));
-    esp_ping_get_profile(hdl, ESP_PING_PROF_DURATION, &total_time_ms, sizeof(total_time_ms));
-    ESP_LOGI(TAG, "%" PRIu32 " packets transmitted, %" PRIu32 " received, time %" PRIu32 "ms", transmitted, received, total_time_ms);
-
-    // Get end time
-    gettimeofday(&end_time, NULL);
-    long seconds = end_time.tv_sec - start_time.tv_sec;
-    long microseconds = end_time.tv_usec - start_time.tv_usec;
-    double elapsed = seconds + microseconds*1e-6;
-
-    // Calculate throughput
-    double throughput = total_data_received / elapsed; // Bytes per second
-    ESP_LOGI(TAG, "Throughput: %f bytes/sec", throughput);
-
-    // Reset the total data received for the next interval
-    total_data_received = 0;
-
-    // Set the new start time for the next interval
-    gettimeofday(&start_time, NULL);
-}
-
-void start_ping()
-{
-    ESP_LOGI(TAG, "Initializing ping...");
-    /* convert URL to IP address */
-    ip_addr_t target_addr;
-    struct addrinfo *res = NULL;
-    struct addrinfo hint;
-    memset(&hint, 0, sizeof(hint));
-    memset(&target_addr, 0, sizeof(target_addr));
-    ESP_ERROR_CHECK(lwip_getaddrinfo(CONFIG_EXAMPLE_PING_ADDRESS, NULL, &hint, &res) == 0 ? ESP_OK : ESP_FAIL);
-    struct in_addr addr4 = ((struct sockaddr_in *) (res->ai_addr))->sin_addr;
-    inet_addr_to_ip4addr(ip_2_ip4(&target_addr), &addr4);
-    lwip_freeaddrinfo(res);
-    ESP_LOGI(TAG, "ICMP echo target: %s", CONFIG_EXAMPLE_PING_ADDRESS);
-    esp_ping_config_t ping_config = ESP_PING_DEFAULT_CONFIG();
-    ping_config.target_addr = target_addr;          // target IP address
-    ping_config.count = ESP_PING_COUNT_INFINITE;    // ping in infinite mode, esp_ping_stop can stop it
-
-    /* set callback functions */
-    esp_ping_callbacks_t cbs;
-    cbs.on_ping_success = test_on_ping_success;
-    cbs.on_ping_timeout = test_on_ping_timeout;
-    cbs.on_ping_end = test_on_ping_end;
-    cbs.cb_args = NULL;
-
-    esp_ping_handle_t ping;
-    ESP_ERROR_CHECK(esp_ping_new_session(&ping_config, &cbs, &ping));
-    esp_ping_start(ping);
-}
-
-//new freertos task to log throughput
-static void throughput_task(void *pvParameters)
-{
-    while (1) {
-        vTaskDelay(10000 / portTICK_PERIOD_MS);  // Calculate every 10 seconds
-
-        xSemaphoreTake(throughput_semaphore, portMAX_DELAY);
-
-        // Get end time
-        gettimeofday(&end_time, NULL);
-        long seconds = end_time.tv_sec - start_time.tv_sec;
-        long microseconds = end_time.tv_usec - start_time.tv_usec;
-        double elapsed = seconds + microseconds * 1e-6;
-
-        // Calculate throughput
-        double throughput = total_data_received / elapsed;  // Bytes per second
-        ESP_LOGI(TAG, "Throughput: %f bytes/sec", throughput);
-
-        // Reset the total data received and start time for the next interval
-        total_data_received = 0;
-        gettimeofday(&start_time, NULL);
-
-        xSemaphoreGive(throughput_semaphore);
-    }
-}
-
 void app_main(void)
 {
     esp_err_t err;
@@ -375,16 +255,7 @@ void app_main(void)
         }
     }
 
-    // Initialize start time for throughput calculation
-    gettimeofday(&start_time, NULL);
-
-    // Initialize the semaphore
-    throughput_semaphore = xSemaphoreCreateMutex();
-
-    // Create the throughput task
-    xTaskCreate(throughput_task, "throughput_task", 2048, NULL, 5, NULL);
-
-    start_ping();
+    init_ping_throughput();
 
     while (1) {
         vTaskDelay(1000 * 10 / portTICK_PERIOD_MS);
