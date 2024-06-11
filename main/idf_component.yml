@@ -1,4 +1,0 @@
-dependencies:
-  espressif/coap: "^4.3.4~3"
-  idf:
-    version: ">=4.1.0"

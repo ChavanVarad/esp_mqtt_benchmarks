@@ -534,11 +534,6 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/espressif__coap/cmake_install.cmake")
-endif()
-
-if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  # Include the install script for the subdirectory.
   include("D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/main/cmake_install.cmake")
 endif()
 

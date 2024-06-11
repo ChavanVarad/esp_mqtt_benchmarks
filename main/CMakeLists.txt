@@ -1,3 +1,3 @@
 idf_component_register(SRCS "ping_functions.c" "main.c" "sync_time.c"
                     INCLUDE_DIRS "."
-                    REQUIRES esp_wifi lwip esp_wireguard nvs_flash coap)
+                    REQUIRES esp_wifi lwip esp_wireguard nvs_flash)
