@@ -18,6 +18,8 @@
     "idf.portWin": "COM3",
     "files.associations": {
         "sync_time.h": "c",
-        "esp_netif.h": "c"
+        "esp_netif.h": "c",
+        "esp_wireguard.h": "c",
+        "coap.h": "c"
     }
 }

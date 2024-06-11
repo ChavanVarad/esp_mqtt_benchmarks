@@ -80,4 +80,5 @@ D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/perfmon/
 D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/spiffs/libspiffs.a
 D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/wifi_provisioning/libwifi_provisioning.a
 D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/esp_wireguard/libesp_wireguard.a
+D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/espressif__coap/libespressif__coap.a
 D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/main/libmain.a

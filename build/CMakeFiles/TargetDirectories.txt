@@ -805,6 +805,13 @@ D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/esp_wire
 D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/esp_wireguard/CMakeFiles/install.dir
 D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/esp_wireguard/CMakeFiles/install/local.dir
 D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/esp_wireguard/CMakeFiles/install/strip.dir
+D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/espressif__coap/CMakeFiles/__idf_espressif__coap.dir
+D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/espressif__coap/CMakeFiles/edit_cache.dir
+D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/espressif__coap/CMakeFiles/rebuild_cache.dir
+D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/espressif__coap/CMakeFiles/list_install_components.dir
+D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/espressif__coap/CMakeFiles/install.dir
+D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/espressif__coap/CMakeFiles/install/local.dir
+D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/espressif__coap/CMakeFiles/install/strip.dir
 D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/main/CMakeFiles/__idf_main.dir
 D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/main/CMakeFiles/edit_cache.dir
 D:/Projects/expressif/projects/espidf-wireguard_benchmark/build/esp-idf/main/CMakeFiles/rebuild_cache.dir

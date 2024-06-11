@@ -20,6 +20,7 @@
 #include <esp_wifi.h>
 #include <nvs_flash.h>
 #include <lwip/netdb.h>
+#include <coap3/coap.h>
 
 #include <esp_wireguard.h>
 #include "sync_time.h"
@@ -30,7 +31,6 @@
 static const char *TAG = "espidf-wg";
 static int s_retry_num = 0;
 static wireguard_config_t wg_config = ESP_WIREGUARD_CONFIG_DEFAULT();
-
 
 #define EXAMPLE_ESP_WIFI_SSID      CONFIG_ESP_WIFI_SSID
 #define EXAMPLE_ESP_WIFI_PASS      CONFIG_ESP_WIFI_PASSWORD
@@ -201,6 +201,47 @@ static esp_err_t wifi_init_sta(void)
 #endif
 }
 
+static void send_coap_data_task(void *pvParameters)
+{
+    coap_context_t *ctx = (coap_context_t *)pvParameters;
+    coap_address_t dst_addr;
+    coap_uri_t uri;
+    coap_pdu_t *pdu;
+    coap_session_t *session;
+    coap_optlist_t *optlist = NULL;
+
+    uint8_t data[3][32];
+    char uri_str[] = "coap://example.com/sensor";
+    int uri_len = strlen(uri_str);
+
+    coap_split_uri((const uint8_t *)uri_str, uri_len, &uri);
+
+    coap_address_init(&dst_addr);
+    dst_addr.addr.sin.sin_family = AF_INET;
+    dst_addr.addr.sin.sin_port = htons(uri.port);
+    inet_pton(AF_INET, "192.168.1.1", &dst_addr.addr.sin.sin_addr.s_addr);
+
+    session = coap_new_client_session(ctx, NULL, &dst_addr, COAP_PROTO_UDP);
+
+    while (1) {
+        for (int i = 0; i < 3; i++) {
+            snprintf((char *)data[i], sizeof(data[i]), "sensor%d: %d", i + 1, rand() % 100);
+        }
+
+        pdu = coap_new_pdu(COAP_MESSAGE_NON, COAP_REQUEST_POST, session);
+        coap_insert_optlist(&optlist, coap_new_optlist(COAP_OPTION_URI_PATH, uri.path.length, uri.path.s));
+        coap_insert_optlist(&optlist, coap_new_optlist(COAP_OPTION_URI_HOST, uri.host.length, uri.host.s));
+
+        for (int i = 0; i < 3; i++) {
+            coap_add_data(pdu, strlen((char *)data[i]), data[i]);
+        }
+
+        coap_send(session, pdu);
+
+        vTaskDelay(pdMS_TO_TICKS(5000));
+    }
+}
+
 void app_main(void)
 {
     esp_err_t err;
@@ -256,6 +297,9 @@ void app_main(void)
     }
 
     init_ping_throughput();
+
+    coap_context_t *coap_ctx = coap_new_context(NULL);
+    xTaskCreate(&send_coap_data_task, "send_coap_data_task", 4096, coap_ctx, 5, NULL);
 
     while (1) {
         vTaskDelay(1000 * 10 / portTICK_PERIOD_MS);
