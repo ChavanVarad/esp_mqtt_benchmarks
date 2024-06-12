@@ -1,11 +1,3 @@
-/* WireGuard demo example
-
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
 #include <string.h>
 #include <inttypes.h>
 #include <time.h>
@@ -30,7 +22,6 @@
 static const char *TAG = "espidf-wg";
 static int s_retry_num = 0;
 static wireguard_config_t wg_config = ESP_WIREGUARD_CONFIG_DEFAULT();
-
 
 #define EXAMPLE_ESP_WIFI_SSID      CONFIG_ESP_WIFI_SSID
 #define EXAMPLE_ESP_WIFI_PASS      CONFIG_ESP_WIFI_PASSWORD
