@@ -199,24 +199,23 @@ static limb_t canon(fe x) {
     }
     return ((dlimb_t)res - 1) >> X25519_WBITS;
 }
-
-static const limb_t a24[1]={121665};
+static const fe a24 = {121665, 0, 0, 0, 0, 0, 0, 0};
 
 static void ladder_part1(fe xs[5]) {
-    limb_t *x2 = xs[0], *z2=xs[1],*x3=xs[2],*z3=xs[3],*t1=xs[4];
-    add(t1,x2,z2);  // t1 = A
-    sub(z2,x2,z2);  // z2 = B
-    add(x2,x3,z3);  // x2 = C
-    sub(z3,x3,z3);  // z3 = D
-    mul1(z3,t1);    // z3 = DA
-    mul1(x2,z2);    // x3 = BC
-    add(x3,z3,x2);  // x3 = DA+CB
-    sub(z3,z3,x2);  // z3 = DA-CB
-    sqr1(t1);       // t1 = AA
-    sqr1(z2);       // z2 = BB
-    sub(x2,t1,z2);  // x2 = E = AA-BB
-    mul(z2,x2,a24,sizeof(a24)/sizeof(a24[0])); // z2 = E*a24
-    add(z2,z2,t1);  // z2 = E*a24 + AA
+    limb_t *x2 = xs[0], *z2 = xs[1], *x3 = xs[2], *z3 = xs[3], *t1 = xs[4];
+    add(t1, x2, z2);  // t1 = A
+    sub(z2, x2, z2);  // z2 = B
+    add(x2, x3, z3);  // x2 = C
+    sub(z3, x3, z3);  // z3 = D
+    mul1(z3, t1);     // z3 = DA
+    mul1(x2, z2);     // x3 = BC
+    add(x3, z3, x2);  // x3 = DA+CB
+    sub(z3, z3, x2);  // z3 = DA-CB
+    sqr1(t1);         // t1 = AA
+    sqr1(z2);         // z2 = BB
+    sub(x2, t1, z2);  // x2 = E = AA-BB
+    mul(z2, x2, a24, NLIMBS); // z2 = E*a24
+    add(z2, z2, t1);  // z2 = E*a24 + AA
 }
 static void ladder_part2(fe xs[5], const fe x1) {
     limb_t *x2 = xs[0], *z2=xs[1],*x3=xs[2],*z3=xs[3],*t1=xs[4];
