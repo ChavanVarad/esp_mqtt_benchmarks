@@ -9,23 +9,46 @@
 static const char *TAG = "mqtt_setup";
 static esp_mqtt_client_handle_t mqtt_client = NULL;
 static int emulation_mode = 0;
+static TaskHandle_t periodic_task_handle = NULL;
+static TaskHandle_t bursty_task_handle = NULL;
 
 #define PERIODIC_MODE 0
 #define BURSTY_MODE 1
+
+// Function declarations
+static void publish_periodic_data(void *pvParameters);
+static void publish_bursty_data(void *pvParameters);
 
 static void mqtt_event_handler(void *handler_args, esp_event_base_t event_base, int32_t event_id, void *event_data) {
     switch (event_id) {
         case MQTT_EVENT_CONNECTED:
             ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
             esp_mqtt_client_subscribe(mqtt_client, "/topic/qos0", 0);
-            if (emulation_mode == PERIODIC_MODE) {
+            if (emulation_mode == PERIODIC_MODE && periodic_task_handle == NULL) {
                 ESP_LOGI(TAG, "Starting periodic sensor data publishing...");
-            } else if (emulation_mode == BURSTY_MODE) {
+                xTaskCreate(publish_periodic_data, "publish_periodic_data", 4096, NULL, 5, &periodic_task_handle);
+            } else if (emulation_mode == BURSTY_MODE && bursty_task_handle == NULL) {
                 ESP_LOGI(TAG, "Starting bursty event data publishing...");
+                xTaskCreate(publish_bursty_data, "publish_bursty_data", 4096, NULL, 5, &bursty_task_handle);
             }
             break;
         case MQTT_EVENT_DISCONNECTED:
             ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
+            if (periodic_task_handle != NULL) {
+                vTaskDelete(periodic_task_handle);
+                periodic_task_handle = NULL;
+            }
+            if (bursty_task_handle != NULL) {
+                vTaskDelete(bursty_task_handle);
+                bursty_task_handle = NULL;
+            }
+            // Reconnect logic can be enhanced if needed
+            // esp_mqtt_client_reconnect(mqtt_client);
+            break;
+        case MQTT_EVENT_ERROR:
+            ESP_LOGE(TAG, "MQTT_EVENT_ERROR");
+            // Handle the error and try to reconnect if necessary
+            esp_mqtt_client_reconnect(mqtt_client);
             break;
         default:
             ESP_LOGI(TAG, "Other event id:%" PRIi32, event_id);
@@ -73,11 +96,4 @@ void mqtt_app_start(esp_mqtt_client_config_t *mqtt_cfg) {
 
     esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler, mqtt_client);
     esp_mqtt_client_start(mqtt_client);
-
-    // Create tasks for periodic or bursty data publishing based on the mode
-    if (emulation_mode == PERIODIC_MODE) {
-        xTaskCreate(publish_periodic_data, "publish_periodic_data", 4096, NULL, 5, NULL);
-    } else if (emulation_mode == BURSTY_MODE) {
-        xTaskCreate(publish_bursty_data, "publish_bursty_data", 4096, NULL, 5, NULL);
-    }
 }

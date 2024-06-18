@@ -80,26 +80,15 @@ void app_main(void) {
     esp_mqtt_client_config_t mqtt_cfg = {
         .broker.address.uri = MQTT_BROKER_URI,
     };
+
+    ESP_LOGI(TAG, "MQTT Broker URI: %s", MQTT_BROKER_URI);  // Output the broker URI
+
     mqtt_app_start(&mqtt_cfg);  // Start the MQTT client after WireGuard is connected
 
+    // Continuous loop to keep the main task alive
     while (1) {
         vTaskDelay(10000 / portTICK_PERIOD_MS);
-        ESP_LOGI(TAG, "Disconnecting.");
-        esp_wireguard_disconnect(&ctx);
-        ESP_LOGI(TAG, "Disconnected.");
-
-        vTaskDelay(10000 / portTICK_PERIOD_MS);
-        ESP_LOGI(TAG, "Connecting.");
-        err = esp_wireguard_connect(&ctx);
-        if (err != ESP_OK) {
-            ESP_LOGE(TAG, "esp_wireguard_connect: %s", esp_err_to_name(err));
-            goto fail;
-        }
-        while (esp_wireguardif_peer_is_up(&ctx) != ESP_OK) {
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-        }
-        ESP_LOGI(TAG, "Peer is up");
-        esp_wireguard_set_default(&ctx);
+        ESP_LOGI(TAG, "Main task alive.");
     }
 
 fail:
