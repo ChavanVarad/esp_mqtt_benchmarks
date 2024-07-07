@@ -1,3 +1,3 @@
-PROJECT_NAME := esp32_wgmqtt
+PROJECT_NAME := esp_wgmqtt
 
 include $(IDF_PATH)/make/project.mk
