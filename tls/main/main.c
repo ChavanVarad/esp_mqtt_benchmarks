@@ -13,10 +13,8 @@
 #include <nvs_flash.h>
 #include <lwip/netdb.h>
 #include <ping/ping_sock.h>
-#include <esp_wireguard.h>
-#include "sync_time.h"
 #include "mqtt_client.h"
-
+#include "esp_tls.h"
 
 #define ESP_WIFI_SSID      CONFIG_ESP_WIFI_SSID
 #define ESP_WIFI_PASS      CONFIG_ESP_WIFI_PASSWORD
@@ -30,55 +28,26 @@
 #include <esp_netif.h>
 #endif
 
+
+
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
 
+static const uint8_t s_key[] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF};
+
+static const psk_hint_key_t psk_hint_key = {
+        .key = s_key,
+        .key_size = sizeof(s_key),
+        .hint = CONFIG_MQTT_PSK_IDENTITY,
+        };
 /* The event group allows multiple bits for each event, but we only care about two events:
  * - we are connected to the AP with an IP
  * - we failed to connect after the maximum amount of retries */
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
 
-static const char *TAG = "wg_bench";
+static const char *TAG = "tls_bench";
 static int s_retry_num = 0;
-static wireguard_config_t wg_config = ESP_WIREGUARD_CONFIG_DEFAULT();
-
-static esp_err_t wireguard_setup(wireguard_ctx_t* ctx)
-{
-    esp_err_t err = ESP_FAIL;
-
-    ESP_LOGI(TAG, "Initializing WireGuard.");
-    wg_config.private_key = CONFIG_WG_PRIVATE_KEY;
-    wg_config.listen_port = CONFIG_WG_LOCAL_PORT;
-    wg_config.public_key = CONFIG_WG_PEER_PUBLIC_KEY;
-    if (strcmp(CONFIG_WG_PRESHARED_KEY, "") != 0) {
-        wg_config.preshared_key = CONFIG_WG_PRESHARED_KEY;
-    } else {
-        wg_config.preshared_key = NULL;
-    }
-    wg_config.allowed_ip = CONFIG_WG_LOCAL_IP_ADDRESS;
-    wg_config.allowed_ip_mask = CONFIG_WG_LOCAL_IP_NETMASK;
-    wg_config.endpoint = CONFIG_WG_PEER_ADDRESS;
-    wg_config.port = CONFIG_WG_PEER_PORT;
-    wg_config.persistent_keepalive = CONFIG_WG_PERSISTENT_KEEP_ALIVE;
-
-    err = esp_wireguard_init(&wg_config, ctx);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "esp_wireguard_init: %s", esp_err_to_name(err));
-        goto fail;
-    }
-
-    ESP_LOGI(TAG, "Connecting to the peer.");
-    err = esp_wireguard_connect(ctx);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "esp_wireguard_connect: %s", esp_err_to_name(err));
-        goto fail;
-    }
-
-    err = ESP_OK;
-fail:
-    return err;
-}
 
 static void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
@@ -102,7 +71,7 @@ static void event_handler(void* arg, esp_event_base_t event_base,
     }
 }
 
-#ifdef CONFIG_WIREGUARD_ESP_TCPIP_ADAPTER
+#ifdef CONFIG_ESP_TCPIP_ADAPTER
 static esp_err_t wifi_init_tcpip_adaptor(void)
 {
     esp_err_t err = ESP_FAIL;
@@ -171,7 +140,7 @@ fail:
 }
 #endif // CONFIG_WIREGUARD_ESP_TCPIP_ADAPTER
 
-#ifdef CONFIG_WIREGUARD_ESP_NETIF
+#ifdef CONFIG_ESP_NETIF
 static esp_err_t wifi_init_netif(void)
 {
     esp_err_t err = ESP_FAIL;
@@ -261,10 +230,10 @@ fail:
 
 static esp_err_t wifi_init_sta(void)
 {
-#if defined(CONFIG_WIREGUARD_ESP_TCPIP_ADAPTER)
+#if defined(CONFIG_ESP_TCPIP_ADAPTER)
     return wifi_init_tcpip_adaptor();
 #endif
-#if defined(CONFIG_WIREGUARD_ESP_NETIF)
+#if defined(CONFIG_ESP_NETIF)
     return wifi_init_netif();
 #endif
 }
@@ -313,6 +282,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
 static void mqtt_app_start(void)
 {
+
 #ifdef CONFIG_ESP_NETIF //Assumed that if using ESP_NETIF, its for the ESP32
     esp_mqtt_client_config_t mqtt_cfg = {
         .broker.address.uri = CONFIG_BROKER_URL,
@@ -329,7 +299,6 @@ static void mqtt_app_start(void)
         .psk_hint_key = &psk_hint_key
     };
 #endif
-
     esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
     /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
@@ -339,14 +308,6 @@ static void mqtt_app_start(void)
 void app_main(void)
 {
     esp_err_t err;
-    time_t now;
-    struct tm timeinfo;
-    char strftime_buf[64];
-    wireguard_ctx_t ctx = {0};
-
-    esp_log_level_set("esp_wireguard", ESP_LOG_DEBUG);
-    esp_log_level_set("wireguardif", ESP_LOG_DEBUG);
-    esp_log_level_set("wireguard", ESP_LOG_DEBUG);
     err = nvs_flash_init();
 #if defined(CONFIG_IDF_TARGET_ESP8266) && ESP_IDF_VERSION <= ESP_IDF_VERSION_VAL(3, 4, 0)
     if (err == ESP_ERR_NVS_NO_FREE_PAGES) {
@@ -364,29 +325,6 @@ void app_main(void)
         goto fail;
     }
 
-    obtain_time();
-    time(&now);
-
-    setenv("TZ", "EST5EDT,M3.2.0/2,M11.1.0", 1);
-    tzset();
-    localtime_r(&now, &timeinfo);
-    strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
-    ESP_LOGI(TAG, "The current date/time in New York is: %s", strftime_buf);
-
-    err = wireguard_setup(&ctx);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "wireguard_setup: %s", esp_err_to_name(err));
-        goto fail;
-    }
-
-
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
-    err = esp_wireguardif_peer_is_up(&ctx);
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "Peer is up");
-    } else {
-        ESP_LOGI(TAG, "Peer is down");
-    }
 mqtt_app_start();
     
 

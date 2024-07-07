@@ -396,11 +396,11 @@ CONFIG_ESP_NETIF=y
 #
 # MQTT Broker configuration
 #
-CONFIG_BROKER_URL="mqtt://192.168.0.199:8883"
+CONFIG_BROKER_URL="mqtts://192.168.0.199"
 CONFIG_CLIENT_USER="mqtt-user"
 CONFIG_CLIENT_PASS="gc5459"
 CONFIG_MQTT_PSK="0123456789abcdef0123456789abcdef"
-CONFIG_MQTT_PSK_HINT="hint"
+CONFIG_MQTT_PSK_IDENTITY="psk-identity"
 # end of MQTT Broker configuration
 
 #

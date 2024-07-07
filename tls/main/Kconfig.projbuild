@@ -53,15 +53,9 @@ menu "MQTT Broker configuration"
         help
             Client password
 
-    config MQTT_PSK
-        string "Pre shared key"
-        default "securekey"
-        help
-            Pre shared key
-
-    config MQTT_PSK_HINT
-        string "Pre shared key hint"
-        default "easyhint"
+    config MQTT_PSK_IDENTITY
+        string "Pre shared key identity"
+        default "psk-identity"
         help
             PSK Hint
 
