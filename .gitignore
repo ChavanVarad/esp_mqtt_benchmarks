@@ -1,0 +1,25 @@
+##Global files
+*.swp
+
+##dot files for all tests
+tls/*.swp
+wg/*.swp
+ue/*.swp
+
+##Build files for all tests
+tls/build/*
+wg/build/*
+ue/build/*
+
+tls/build
+wg/build
+ue/build
+
+##sdkconfigs for all
+tls/sdkconfig
+wg/sdkconfig
+ue/sdkconfig
+
+tls/sdkconfig.*
+wg/sdkconfig.*
+ue/sdkconfig.*
