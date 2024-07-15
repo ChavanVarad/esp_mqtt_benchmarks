@@ -1,10 +1,15 @@
 ##Global files
 *.swp
 
+
 ##dot files for all tests
 tls/*.swp
+tls/.vscode
 wg/*.swp
+wg/.vscode
 ue/*.swp
+ue/.vscode
+
 
 ##Build files for all tests
 tls/build/*
