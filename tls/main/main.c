@@ -33,13 +33,14 @@
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
 
-static const uint8_t s_key[] = {0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF};
+extern const uint8_t client_cert_pem_start[] asm("_binary_client_crt_start");
+extern const uint8_t client_cert_pem_end[] asm("_binary_client_crt_end");
+extern const uint8_t client_key_pem_start[] asm("_binary_client_key_start");
+extern const uint8_t client_key_pem_end[] asm("_binary_client_key_end");
+extern const uint8_t server_cert_pem_start[] asm("_binary_ca_crt_start");
+extern const uint8_t server_cert_pem_end[] asm("_binary_ca_crt_end");
 
-static const psk_hint_key_t psk_hint_key = {
-        .key = s_key,
-        .key_size = sizeof(s_key),
-        .hint = CONFIG_MQTT_PSK_IDENTITY,
-        };
+
 /* The event group allows multiple bits for each event, but we only care about two events:
  * - we are connected to the AP with an IP
  * - we failed to connect after the maximum amount of retries */
@@ -286,17 +287,27 @@ static void mqtt_app_start(void)
 #ifdef CONFIG_ESP_NETIF //Assumed that if using ESP_NETIF, its for the ESP32
     esp_mqtt_client_config_t mqtt_cfg = {
         .broker.address.uri = CONFIG_BROKER_URL,
-        .credentials.username = CONFIG_CLIENT_USER,
-        .credentials.authentication.password = CONFIG_CLIENT_PASS,
-        .broker.verification.psk_hint_key = &psk_hint_key,
+        .broker.verification.certificate = (const char *)server_cert_pem_start,
+        .buffer.size = 5120,
+        .credentials = {
+            .authentication = {
+                .password = CONFIG_CLIENT_PASS,
+                .certificate = (const char *)client_cert_pem_start,
+                .key = (const char *)client_key_pem_start,
+            },
+        }
     };
 #endif
 #ifdef CONFIG_ESP_TCPIP_ADAPTER //Assumed that if using TCP_IP_Adapter, its for the ESP8266
     esp_mqtt_client_config_t mqtt_cfg = {
         .uri = CONFIG_BROKER_URL,
-        .username = CONFIG_CLIENT_USER,
+        .buffer_size = 3072,
         .password = CONFIG_CLIENT_PASS,
-        .psk_hint_key = &psk_hint_key
+        .username = CONFIG_CLIENT_USER,
+        .client_cert_pem = (const char *)client_cert_pem_start,
+        .client_key_pem = (const char *)client_key_pem_start,
+        .cert_pem = (const char *)server_cert_pem_start,
+
     };
 #endif
     esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);

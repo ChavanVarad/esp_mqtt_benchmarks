@@ -46,18 +46,12 @@ menu "MQTT Broker configuration"
         default "hello"
         help
             Client username
-
+            
     config CLIENT_PASS
         string "Client Password"
         default "world"
         help
             Client password
-
-    config MQTT_PSK_IDENTITY
-        string "Pre shared key identity"
-        default "psk-identity"
-        help
-            PSK Hint
 
 endmenu
 

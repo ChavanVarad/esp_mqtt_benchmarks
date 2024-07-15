@@ -318,7 +318,7 @@ static void mqtt_app_start(void)
         .broker.address.uri = CONFIG_BROKER_URL,
         .credentials.username = CONFIG_CLIENT_USER,
         .credentials.authentication.password = CONFIG_CLIENT_PASS,
-        .broker.verification.psk_hint_key = &psk_hint_key,
+        .buffer.size = 5120,
     };
 #endif
 #ifdef CONFIG_ESP_TCPIP_ADAPTER //Assumed that if using TCP_IP_Adapter, its for the ESP8266
@@ -326,7 +326,7 @@ static void mqtt_app_start(void)
         .uri = CONFIG_BROKER_URL,
         .username = CONFIG_CLIENT_USER,
         .password = CONFIG_CLIENT_PASS,
-        .psk_hint_key = &psk_hint_key
+        .buffer_size = 5120,
     };
 #endif
 

@@ -19,6 +19,18 @@ menu "Wifi configuration"
             Set the Maximum retry to avoid station reconnecting to the AP
             unlimited when the AP is really inexistent.
 
+    config ESP_TCPIP_ADAPTER
+        bool "Use TCPIP Adapter"
+        default n
+        help
+            Use TCPIP Adapter for network interface initialization.
+    
+    config ESP_NETIF
+        bool "Use ESP Netif"
+        default y
+        help
+            Use ESP Netif for network interface initialization.
+
 endmenu
 
 menu "MQTT Broker configuration"
