@@ -47,7 +47,7 @@ extern const uint8_t server_cert_pem_end[] asm("_binary_ca_crt_end");
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
 
-static const char *TAG = "tls_bench";
+static const char *TAG = "esp_mtls_mqtt";
 static int s_retry_num = 0;
 
 static void event_handler(void* arg, esp_event_base_t event_base,
