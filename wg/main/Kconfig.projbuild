@@ -20,16 +20,17 @@ menu "Wifi configuration"
             unlimited when the AP is really inexistent.
 
     config ESP_TCPIP_ADAPTER
-        bool "Use TCPIP Adapter"
+        bool "Use TCPIP Adapter (For esp8266)"
         default n
         help
             Use TCPIP Adapter for network interface initialization.
     
     config ESP_NETIF
-        bool "Use ESP Netif"
+        bool "Use ESP Netif (For esp32)"
         default y
         help
             Use ESP Netif for network interface initialization.
+        
 
 endmenu
 
@@ -45,13 +46,19 @@ menu "MQTT Broker configuration"
         string "Client Username"
         default "hello"
         help
-            Client username
+            Client username. set either "esp32" or "esp8266"
 
     config CLIENT_PASS
         string "Client Password"
         default "world"
         help
             Client password
+    
+    config MQTT_CLIENTID
+        int "Client ID"
+        default "1"
+        help
+            Client ID. Set to either 1, 2, or 3.
 
 endmenu
 

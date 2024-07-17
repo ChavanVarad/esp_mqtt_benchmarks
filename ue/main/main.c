@@ -19,14 +19,12 @@
 #define ESP_WIFI_PASS      CONFIG_ESP_WIFI_PASSWORD
 #define ESP_MAXIMUM_RETRY  CONFIG_ESP_MAXIMUM_RETRY
 
-#if defined(CONFIG_IDF_TARGET_ESP8266)
-#include <esp_netif.h>
-#elif ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(4, 2, 0)
-#include <tcpip_adapter.h>
-#else
+#ifdef CONFIG_ESP_NETIF
 #include <esp_netif.h>
 #endif
-
+#ifdef CONFIG_ESP_TCPIP_ADAPTER
+#include <tcpip_adapter.h>
+#endif
 
 
 /* FreeRTOS event group to signal when we are connected*/
@@ -235,11 +233,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     esp_mqtt_event_handle_t event = event_data;
     esp_mqtt_client_handle_t client = event->client;
     int msg_id;
-
+    char requesttop[10];
+    char responsetop[10];
+    snprintf(requesttop, sizeof(requesttop), "request%d", CONFIG_MQTT_CLIENTID);
+    snprintf(responsetop, sizeof(responsetop), "response%d", CONFIG_MQTT_CLIENTID);
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-        msg_id = esp_mqtt_client_subscribe(client, "request", 0);
+        msg_id = esp_mqtt_client_subscribe(client, requesttop, 0);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
         break;
     case MQTT_EVENT_DISCONNECTED:
@@ -260,7 +261,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         ESP_LOGI(TAG, "DATA=%.*s\r\n", event->data_len, event->data);
 
         // Publish the received data to "response" topic
-        msg_id = esp_mqtt_client_publish(client, "response", event->data, event->data_len, 0, 0);
+        msg_id = esp_mqtt_client_publish(client, responsetop, event->data, event->data_len, 0, 0);
         ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
         break;
     case MQTT_EVENT_ERROR:
@@ -276,9 +277,15 @@ static void mqtt_app_start(void)
 {
 
 #ifdef CONFIG_ESP_NETIF //Assumed that if using ESP_NETIF, its for the ESP32
+    // Buffer to hold the constructed username
+    char username[10];
+
+    // Construct the username with client ID
+    snprintf(username, sizeof(username), "%s-%d", CONFIG_CLIENT_USER, CONFIG_MQTT_CLIENTID);
+
     esp_mqtt_client_config_t mqtt_cfg = {
         .broker.address.uri = CONFIG_BROKER_URL,
-        .credentials.username = CONFIG_CLIENT_USER,
+        .credentials.username = username,
         .credentials.authentication.password = CONFIG_CLIENT_PASS,
         .buffer.size = 5120,
     };

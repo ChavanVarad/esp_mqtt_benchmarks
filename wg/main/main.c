@@ -22,12 +22,11 @@
 #define ESP_WIFI_PASS      CONFIG_ESP_WIFI_PASSWORD
 #define ESP_MAXIMUM_RETRY  CONFIG_ESP_MAXIMUM_RETRY
 
-#if defined(CONFIG_IDF_TARGET_ESP8266)
+#ifdef CONFIG_ESP_NETIF
 #include <esp_netif.h>
-#elif ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(4, 2, 0)
+#endif
+#ifdef CONFIG_ESP_TCPIP_ADAPTER
 #include <tcpip_adapter.h>
-#else
-#include <esp_netif.h>
 #endif
 
 /* FreeRTOS event group to signal when we are connected*/
@@ -274,11 +273,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     esp_mqtt_event_handle_t event = event_data;
     esp_mqtt_client_handle_t client = event->client;
     int msg_id;
-
+    char requesttop[10];
+    char responsetop[10];
+    snprintf(requesttop, sizeof(requesttop), "request%d", CONFIG_MQTT_CLIENTID);
+    snprintf(responsetop, sizeof(responsetop), "response%d", CONFIG_MQTT_CLIENTID);
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-        msg_id = esp_mqtt_client_subscribe(client, "request", 0);
+        msg_id = esp_mqtt_client_subscribe(client, requesttop, 0);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
         break;
     case MQTT_EVENT_DISCONNECTED:
@@ -299,7 +301,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         ESP_LOGI(TAG, "DATA=%.*s\r\n", event->data_len, event->data);
 
         // Publish the received data to "response" topic
-        msg_id = esp_mqtt_client_publish(client, "response", event->data, event->data_len, 0, 0);
+        msg_id = esp_mqtt_client_publish(client, responsetop, event->data, event->data_len, 0, 0);
         ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
         break;
     case MQTT_EVENT_ERROR:
@@ -310,6 +312,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         break;
     }
 }
+
 
 static void mqtt_app_start(void)
 {
