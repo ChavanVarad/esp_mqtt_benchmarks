@@ -317,17 +317,23 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 static void mqtt_app_start(void)
 {
 #ifdef CONFIG_ESP_NETIF //Assumed that if using ESP_NETIF, its for the ESP32
+    // Concatenate CONFIG_CLIENT_USER and CONFIG_MQTT_CLIENTID
+    char mqttuser[10]; // Ensure this buffer is large enough to hold both strings and the hyphen
+    snprintf(mqttuser, sizeof(mqttuser), "%s-%s", CONFIG_CLIENT_USER, CONFIG_MQTT_CLIENTID);
     esp_mqtt_client_config_t mqtt_cfg = {
         .broker.address.uri = CONFIG_BROKER_URL,
-        .credentials.username = CONFIG_CLIENT_USER,
+        .credentials.username = mqttuser,
         .credentials.authentication.password = CONFIG_CLIENT_PASS,
         .buffer.size = 5120,
     };
 #endif
 #ifdef CONFIG_ESP_TCPIP_ADAPTER //Assumed that if using TCP_IP_Adapter, its for the ESP8266
+    // Concatenate CONFIG_CLIENT_USER and CONFIG_MQTT_CLIENTID
+    char mqttuser[10]; // Ensure this buffer is large enough to hold both strings and the hyphen
+    snprintf(mqttuser, sizeof(mqttuser), "%s-%s", CONFIG_CLIENT_USER, CONFIG_MQTT_CLIENTID);
     esp_mqtt_client_config_t mqtt_cfg = {
         .uri = CONFIG_BROKER_URL,
-        .username = CONFIG_CLIENT_USER,
+        .username = mqttuser,
         .password = CONFIG_CLIENT_PASS,
         .buffer_size = 5120,
     };
