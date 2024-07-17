@@ -279,7 +279,7 @@ static void mqtt_app_start(void)
 #ifdef CONFIG_ESP_NETIF //Assumed that if using ESP_NETIF, its for the ESP32
     // Concatenate CONFIG_CLIENT_USER and CONFIG_MQTT_CLIENTID
     char mqttuser[10]; // Ensure this buffer is large enough to hold both strings and the hyphen
-    snprintf(mqttuser, sizeof(mqttuser), "%s-%s", CONFIG_CLIENT_USER, CONFIG_MQTT_CLIENTID);
+    snprintf(mqttuser, sizeof(mqttuser), "%s-%d", CONFIG_CLIENT_USER, CONFIG_MQTT_CLIENTID);
     esp_mqtt_client_config_t mqtt_cfg = {
         .broker.address.uri = CONFIG_BROKER_URL,
         .credentials.username = mqttuser,
@@ -290,7 +290,7 @@ static void mqtt_app_start(void)
 #ifdef CONFIG_ESP_TCPIP_ADAPTER //Assumed that if using TCP_IP_Adapter, its for the ESP8266
     // Concatenate CONFIG_CLIENT_USER and CONFIG_MQTT_CLIENTID
     char mqttuser[10]; // Ensure this buffer is large enough to hold both strings and the hyphen
-    snprintf(mqttuser, sizeof(mqttuser), "%s-%s", CONFIG_CLIENT_USER, CONFIG_MQTT_CLIENTID);
+    snprintf(mqttuser, sizeof(mqttuser), "%s-%d", CONFIG_CLIENT_USER, CONFIG_MQTT_CLIENTID);
     esp_mqtt_client_config_t mqtt_cfg = {
         .uri = CONFIG_BROKER_URL,
         .buffer_size = 3072,
