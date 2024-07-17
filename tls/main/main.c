@@ -303,10 +303,13 @@ static void mqtt_app_start(void)
 #endif
 #ifdef CONFIG_ESP_TCPIP_ADAPTER //Assumed that if using TCP_IP_Adapter, its for the ESP8266
     esp_mqtt_client_config_t mqtt_cfg = {
+        // Concatenate CONFIG_CLIENT_USER and CONFIG_MQTT_CLIENTID
+        char mqttuser[10]; // Ensure this buffer is large enough to hold both strings and the hyphen
+        snprintf(username, sizeof(username), "%s-%s", CONFIG_CLIENT_USER, CONFIG_MQTT_CLIENTID);
         .uri = CONFIG_BROKER_URL,
         .buffer_size = 3072,
         .password = CONFIG_CLIENT_PASS,
-        .username = CONFIG_CLIENT_USER,
+        .username = mqttuser,
         .client_cert_pem = (const char *)client_cert_pem_start,
         .client_key_pem = (const char *)client_key_pem_start,
         .cert_pem = (const char *)server_cert_pem_start,
