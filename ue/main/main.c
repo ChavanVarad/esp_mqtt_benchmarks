@@ -293,7 +293,7 @@ static void mqtt_app_start(void)
     snprintf(mqttuser, sizeof(mqttuser), "%s-%d", CONFIG_CLIENT_USER, CONFIG_MQTT_CLIENTID);
     esp_mqtt_client_config_t mqtt_cfg = {
         .uri = CONFIG_BROKER_URL,
-        .buffer_size = 3072,
+        .buffer_size = 5120,
         .password = CONFIG_CLIENT_PASS,
         .username = mqttuser,
     };
