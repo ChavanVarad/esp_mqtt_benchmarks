@@ -251,7 +251,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-        msg_id = esp_mqtt_client_subscribe(client, requesttop, 0);
+        msg_id = esp_mqtt_client_subscribe(client, requesttop, 1);
         ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
         break;
     case MQTT_EVENT_DISCONNECTED:
@@ -272,7 +272,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         ESP_LOGI(TAG, "DATA=%.*s\r\n", event->data_len, event->data);
 
         // Publish the received data to "response" topic
-        msg_id = esp_mqtt_client_publish(client, responsetop, event->data, event->data_len, 0, 0);
+        msg_id = esp_mqtt_client_publish(client, responsetop, event->data, event->data_len, 1, 0);
         ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
         break;
     case MQTT_EVENT_ERROR:
@@ -317,7 +317,6 @@ static void mqtt_app_start(void)
         .client_cert_pem = (const char *)client_cert_pem_start,
         .client_key_pem = (const char *)client_key_pem_start,
         .cert_pem = (const char *)server_cert_pem_start,
-
     };
 #endif
     esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
