@@ -1,8 +1,4 @@
 # Define variables
-CHIP := esp32 # Set to "esp32" or "esp8266"
-CLIENTID := 1 # Set to "1", "2", or "3"
+CHIP := esp32-1 # Set to "esp32", "esp8266", or "raspi"
 
-COMPONENT_EMBED_TXTFILES := $(CHIP)-certs/$(CHIP)-$(CLIENTID).crt $(CHIP)-certs/$(CHIP)-$(CLIENTID).key ca.crt
-
-all:
-    @echo $(COMPONENT_EMBED_TXTFILES)
+COMPONENT_EMBED_TXTFILES := certs/$(CLIENTID).crt certs/$(CLIENTID).key ca.crt

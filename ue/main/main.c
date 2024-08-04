@@ -7,7 +7,6 @@
 #include <freertos/event_groups.h>
 #include <esp_event.h>
 #include <esp_idf_version.h>
-#include <esp_log.h>
 #include <esp_system.h>
 #include <esp_wifi.h>
 #include <nvs_flash.h>
@@ -26,7 +25,6 @@
 #include <tcpip_adapter.h>
 #endif
 
-
 /* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
 
@@ -36,7 +34,6 @@ static EventGroupHandle_t s_wifi_event_group;
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
 
-static const char *TAG = "esp_uemqtt";
 static int s_retry_num = 0;
 
 static void event_handler(void* arg, esp_event_base_t event_base,
@@ -48,14 +45,11 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         if (s_retry_num < ESP_MAXIMUM_RETRY) {
             esp_wifi_connect();
             s_retry_num++;
-            ESP_LOGI(TAG, "retry to connect to the AP");
         } else {
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
         }
-        ESP_LOGI(TAG,"connect to the AP fail");
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
-        ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
@@ -84,10 +78,6 @@ static esp_err_t wifi_init_tcpip_adaptor(void)
         },
     };
 
-    /* Setting a password implies station will connect to all security modes including WEP/WPA.
-        * However these modes are deprecated and not advisable to be used. Incase your Access point
-        * doesn't support WPA2, these mode can be enabled by commenting below line */
-
     if (strlen((char *)wifi_config.sta.password)) {
         wifi_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
     }
@@ -96,26 +86,17 @@ static esp_err_t wifi_init_tcpip_adaptor(void)
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
     ESP_ERROR_CHECK(esp_wifi_start() );
 
-    ESP_LOGI(TAG, "wifi_init_sta finished.");
-
-    /* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
-     * number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
     EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
             WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
             pdFALSE,
             pdFALSE,
             portMAX_DELAY);
 
-    /* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually
-     * happened. */
     if (bits & WIFI_CONNECTED_BIT) {
-        ESP_LOGI(TAG, "connected to ap SSID:%s", ESP_WIFI_SSID);
     } else if (bits & WIFI_FAIL_BIT) {
-        ESP_LOGI(TAG, "Failed to connect to SSID:%s", ESP_WIFI_SSID);
         err = ESP_FAIL;
         goto fail;
     } else {
-        ESP_LOGE(TAG, "Unknown event");
         err = ESP_FAIL;
         goto fail;
     }
@@ -163,9 +144,6 @@ static esp_err_t wifi_init_netif(void)
         .sta = {
             .ssid = ESP_WIFI_SSID,
             .password = ESP_WIFI_PASS,
-            /* Setting a password implies station will connect to all security modes including WEP/WPA.
-             * However these modes are deprecated and not advisable to be used. Incase your Access point
-             * doesn't support WPA2, these mode can be enabled by commenting below line */
          .threshold.authmode = WIFI_AUTH_WPA2_PSK,
 
             .pmf_cfg = {
@@ -178,36 +156,27 @@ static esp_err_t wifi_init_netif(void)
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
     ESP_ERROR_CHECK(esp_wifi_start() );
 
-    /* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
-     * number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
     EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
             WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
             pdFALSE,
             pdFALSE,
             portMAX_DELAY);
 
-    /* xEventGroupWaitBits() returns the bits before the call returned, hence we can test which event actually
-     * happened. */
     if (bits & WIFI_CONNECTED_BIT) {
-        ESP_LOGI(TAG, "Connected to ap SSID:%s", ESP_WIFI_SSID);
     } else if (bits & WIFI_FAIL_BIT) {
-        ESP_LOGI(TAG, "Failed to connect to SSID:%s", ESP_WIFI_SSID);
         err = ESP_FAIL;
         goto fail;
     } else {
-        ESP_LOGE(TAG, "Unknown event");
         err = ESP_FAIL;
         goto fail;
     }
 
     err = esp_event_handler_instance_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, instance_got_ip);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "esp_event_handler_instance_unregister: %s", esp_err_to_name(err));
         goto fail;
     }
     err = esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_any_id);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "esp_event_handler_instance_unregister: %s", esp_err_to_name(err));
         goto fail;
     }
     vEventGroupDelete(s_wifi_event_group);
@@ -232,74 +201,47 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 {
     esp_mqtt_event_handle_t event = event_data;
     esp_mqtt_client_handle_t client = event->client;
-    int msg_id;
-    char requesttop[10];
-    char responsetop[10];
-    snprintf(requesttop, sizeof(requesttop), "request%d", CONFIG_MQTT_CLIENTID);
-    snprintf(responsetop, sizeof(responsetop), "response%d", CONFIG_MQTT_CLIENTID);
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
-        ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-        msg_id = esp_mqtt_client_subscribe(client, requesttop, 1);
-        ESP_LOGI(TAG, "sent subscribe successful, msg_id=%d", msg_id);
+        esp_mqtt_client_subscribe(client, CONFIG_MQTT_REQ, 1);
         break;
     case MQTT_EVENT_DISCONNECTED:
-        ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
         break;
     case MQTT_EVENT_SUBSCRIBED:
-        ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
         break;
     case MQTT_EVENT_UNSUBSCRIBED:
-        ESP_LOGI(TAG, "MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
         break;
     case MQTT_EVENT_PUBLISHED:
-        ESP_LOGI(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
         break;
     case MQTT_EVENT_DATA:
-        ESP_LOGI(TAG, "MQTT_EVENT_DATA");
-        ESP_LOGI(TAG, "TOPIC=%.*s\r\n", event->topic_len, event->topic);
-        ESP_LOGI(TAG, "DATA=%.*s\r\n", event->data_len, event->data);
-
-        // Publish the received data to "response" topic
-        msg_id = esp_mqtt_client_publish(client, responsetop, event->data, event->data_len, 1, 0);
-        ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
+        esp_mqtt_client_publish(client, CONFIG_MQTT_RES, event->data, event->data_len, 1, 0);
         break;
     case MQTT_EVENT_ERROR:
-        ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
         break;
     default:
-        ESP_LOGI(TAG, "Other event id:%d", event->event_id);
         break;
     }
 }
 
 static void mqtt_app_start(void)
 {
-
 #ifdef CONFIG_ESP_NETIF //Assumed that if using ESP_NETIF, its for the ESP32
-    // Concatenate CONFIG_CLIENT_USER and CONFIG_MQTT_CLIENTID
-    char mqttuser[10]; // Ensure this buffer is large enough to hold both strings and the hyphen
-    snprintf(mqttuser, sizeof(mqttuser), "%s-%d", CONFIG_CLIENT_USER, CONFIG_MQTT_CLIENTID);
     esp_mqtt_client_config_t mqtt_cfg = {
         .broker.address.uri = CONFIG_BROKER_URL,
-        .credentials.username = mqttuser,
-        .credentials.authentication.password = CONFIG_CLIENT_PASS,
+        .credentials.username = CONFIG_MQTT_USER,
+        .credentials.authentication.password = CONFIG_MQTT_PASS,
         .buffer.size = 5120,
     };
 #endif
 #ifdef CONFIG_ESP_TCPIP_ADAPTER //Assumed that if using TCP_IP_Adapter, its for the ESP8266
-    // Concatenate CONFIG_CLIENT_USER and CONFIG_MQTT_CLIENTID
-    char mqttuser[10]; // Ensure this buffer is large enough to hold both strings and the hyphen
-    snprintf(mqttuser, sizeof(mqttuser), "%s-%d", CONFIG_CLIENT_USER, CONFIG_MQTT_CLIENTID);
     esp_mqtt_client_config_t mqtt_cfg = {
         .uri = CONFIG_BROKER_URL,
+        .password = CONFIG_MQTT_PASS,
+        .username = CONFIG_MQTT_USER,
         .buffer_size = 5120,
-        .password = CONFIG_CLIENT_PASS,
-        .username = mqttuser,
     };
 #endif
     esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
-    /* The last argument may be used to pass data to the event handler, in this example mqtt_event_handler */
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
     esp_mqtt_client_start(client);
 }
@@ -320,16 +262,12 @@ void app_main(void)
 
     err = wifi_init_sta();
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "wifi_init_sta: %s", esp_err_to_name(err));
         goto fail;
     }
 
-mqtt_app_start();
-    
-
+    mqtt_app_start();
 
 fail:
-    ESP_LOGE(TAG, "Halting due to error");
     while (1) {
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }

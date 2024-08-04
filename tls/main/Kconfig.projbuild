@@ -39,25 +39,31 @@ menu "MQTT Broker configuration"
         string "Broker URL"
         default "mqtt://mqtt.eclipseprojects.io"
         help
-            URL of the broker to connect to
+            MQTT URL of the broker to connect to
 
-    config CLIENT_USER
+    config MQTT_USER
         string "Client Username"
         default "esp32"
         help
-            Client username. set either "esp32" or "esp8266"
+            MQTT Client username. set either "esp32-x" or "esp8266-x". Replacing "x" with 1, 2, or 3.
 
-    config CLIENT_PASS
+    config MQTT_PASS
         string "Client Password"
         default "world"
         help
-            Client password
-    
-    config MQTT_CLIENTID
-        int "Client ID"
-        default "1"
+            MQTT Client password
+
+    config MQTT_REQ
+        string "Request topic"
+        default "request1"
         help
-            Client ID. Set to either 1, 2, or 3.
+            MQTT topic for the client to subscribe to
+
+    config MQTT_RES
+        string "Request topic"
+        default "response1"
+        help
+            MQTT topic for the client to publish the payload to
 
 endmenu
 
