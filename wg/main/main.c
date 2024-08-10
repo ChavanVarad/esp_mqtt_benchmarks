@@ -17,7 +17,6 @@
 #include "sync_time.h"
 #include "mqtt_client.h"
 
-
 #define ESP_WIFI_SSID      CONFIG_ESP_WIFI_SSID
 #define ESP_WIFI_PASS      CONFIG_ESP_WIFI_PASSWORD
 #define ESP_MAXIMUM_RETRY  CONFIG_ESP_MAXIMUM_RETRY
@@ -29,12 +28,8 @@
 #include <tcpip_adapter.h>
 #endif
 
-/* FreeRTOS event group to signal when we are connected*/
 static EventGroupHandle_t s_wifi_event_group;
 
-/* The event group allows multiple bits for each event, but we only care about two events:
- * - we are connected to the AP with an IP
- * - we failed to connect after the maximum amount of retries */
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
 
@@ -86,10 +81,12 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         } else {
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
         }
+        vTaskDelay(1); // Yield to prevent watchdog starvation
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+        vTaskDelay(1); // Yield to prevent watchdog starvation
     }
 }
 
@@ -123,6 +120,9 @@ static esp_err_t wifi_init_tcpip_adaptor(void)
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
     ESP_ERROR_CHECK(esp_wifi_start() );
+
+    // Disable WiFi power saving mode
+    ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
 
     EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
             WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
@@ -182,8 +182,7 @@ static esp_err_t wifi_init_netif(void)
         .sta = {
             .ssid = ESP_WIFI_SSID,
             .password = ESP_WIFI_PASS,
-         .threshold.authmode = WIFI_AUTH_WPA2_PSK,
-
+            .threshold.authmode = WIFI_AUTH_WPA2_PSK,
             .pmf_cfg = {
                 .capable = true,
                 .required = false
@@ -193,6 +192,9 @@ static esp_err_t wifi_init_netif(void)
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
     ESP_ERROR_CHECK(esp_wifi_start() );
+
+    // Disable WiFi power saving mode
+    ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
 
     EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
             WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
@@ -253,6 +255,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         break;
     case MQTT_EVENT_DATA:
         esp_mqtt_client_publish(client, CONFIG_MQTT_RES, event->data, event->data_len, 1, 0);
+        vTaskDelay(1); // Yield to prevent watchdog starvation
         break;
     case MQTT_EVENT_ERROR:
         break;
@@ -260,7 +263,6 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         break;
     }
 }
-
 
 static void mqtt_app_start(void)
 {
@@ -326,7 +328,7 @@ void app_main(void)
     vTaskDelay(1000 / portTICK_PERIOD_MS);
     err = esp_wireguardif_peer_is_up(&ctx);
 
-mqtt_app_start();
+    mqtt_app_start();
 
 fail:
     while (1) {
