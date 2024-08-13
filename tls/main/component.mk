@@ -1,4 +1,1 @@
-# Define variables
-CHIP := esp32-1 # Set to "esp32", "esp8266", or "raspi"
-
-COMPONENT_EMBED_TXTFILES := certs/$(CLIENTID).crt certs/$(CLIENTID).key ca.crt
+COMPONENT_EMBED_TXTFILES := certs/esp8266-1.crt certs/esp8266-1.key ca.crt
