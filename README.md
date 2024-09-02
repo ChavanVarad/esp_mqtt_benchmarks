@@ -109,7 +109,7 @@ cd esp_mqtt_benchmarks
 
 4. **MQTT Broker Configuration**:
 
-    - **Broker URL**: Set to the actual URL or IP address of your MQTT broker, prepended with `mqtt://{wireguard_local_ip}`.
+    - **Broker URL**: Set to the actual WireGuard IP of the broker, prepended with `mqtt://`. In this case, `mqtt://10.8.0.1`.
     - **Client Username**: Set to either `esp32-1` or `esp8266-1` depending on the chip you are compiling for.
     - **Client Password**: Set to the broker password. In this case, use `"gc5459"`.
 
