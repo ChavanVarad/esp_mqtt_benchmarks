@@ -1,5 +1,13 @@
-## ESP32 and ESP8266 setup
+#Introduction
 
+This is the public GitHub repo for Varad Chavan's Cyber Security Master's Dissertation at Lancaster University.
+
+This guide assumes that the local network tested on is in the IP range `192.168.0.0/24`, and the Raspberry Pi server has been assigned a static IP address `192.168.0.199`. Setup for all three ESP chips when testing threat model haven't been provided here, just the test metrics.
+Note: There are public/private keypairs provided here that were used in a local isolated environment, hence aren't considered "unsafe" for tets purposes. This is purely for convenience. Use newly generated secrets for other deployments.
+
+# ESP32 and ESP8266 setup
+
+## Building
 To set up and run the ESP MQTT Benchmarks project, follow these instructions:
 
 ### Step 1: Clone the Repository
@@ -110,6 +118,34 @@ cd esp_mqtt_benchmarks
 
 5. Exit the configuration menu and save your settings.
 
-###Build
+##Flashing
 
 For flashing, `make flash` in the case of ESP8266_RTOS_SDK (for ESP8266). `idf.py flash` in the case of ESP-IDF (for ESP32).
+
+#Raspberry Pi setup
+
+##Configurations
+
+1. **Operating System**: Flash the Raspberry Pi with `Raspbian (Bookworm)` using the Raspberry Pi imager.
+2. **Update repositories**: `sudo apt update` and `sudo apt upgrade` before installing any necessary packages.
+3. **Required packages**:
+   ```bash
+   sudo apt install wireguard-tools chrony mosquitto mosquitto-clients
+   ```
+4. **Clone repository configurations**:
+   ```bash
+   cd /etc/
+
+   sudo git clone https://github.com/ChavanVarad/esp_mqtt_benchmarks/tree/main/raspberry_pi_configurations
+   ```
+6. **Permissions for mosquitto broker**:
+   ```bash
+   sudo chown -R mosquitto:mosquitto /etc/mosquitto/
+   ```
+7. **Start services**:
+   ```bash
+   sudo systemctl enable mosquitto chrony
+   sudo systemctl enable wg-quick@wg0.service
+   sudo systemctl daemon-reload
+   sudo systemctl start mosquitto chrony wg-quick@wg0.service
+   ```
