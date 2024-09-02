@@ -2,9 +2,13 @@
 
 This is the public GitHub repo for Varad Chavan's Cyber Security Master's Dissertation at Lancaster University.
 
-This guide assumes that the local network tested on is in the IP range `192.168.0.0/24`, and the Raspberry Pi server has been assigned a static IP address `192.168.0.199`. Setup for all three ESP chips when testing threat model haven't been provided here, just the test metrics.
+This guide assumes that the local network tested on is in the IP range `192.168.0.0/24`, and the Raspberry Pi server has been assigned a static IP address `192.168.0.199`. Setup for all three ESP chips when testing threat model haven't been provided here, just the test metrics. Installation of ESP-IDf and ESP_8266_RTOS_SDK can be done by following their respective guides:
 
-#### Note: There are public/private keypairs provided here that were used in a local isolated environment, hence aren't considered "unsafe" for tets purposes. This is purely for convenience. Use newly generated secrets for other deployments.
+1. **ESP8266_RTOS_SDK**: GitHub(https://github.com/espressif/ESP8266_RTOS_SDK)
+2. **ESP-IDF**: GitHub(https://github.com/espressif/esp-idf)
+
+
+#### Note: There are public/private keypairs provided here that were used in a local isolated environment, hence aren't considered "unsafe" for test purposes. This is purely for convenience. Use newly generated secrets for other deployments.
 
 # ESP32 and ESP8266 setup
 
@@ -16,7 +20,9 @@ To set up and run the ESP MQTT Benchmarks project, follow these instructions:
 Start by cloning the repository to your local machine using the following command:
 
 ```bash
-git clone https://github.com/ChavanVarad/esp_mqtt_benchmarks
+mkdir ~/esp_source
+cd ~/esp_source
+git clone https://github.com/ChavanVarad/esp_mqtt_benchmarks/tree/main/esp_idf_source
 ```
 
 ### Step 2: Navigate to the Project Directory
@@ -131,7 +137,7 @@ For flashing, `make flash` in the case of ESP8266_RTOS_SDK (for ESP8266). `idf.p
 2. **Update repositories**: `sudo apt update` and `sudo apt upgrade` before installing any necessary packages.
 3. **Required packages**:
    ```bash
-   sudo apt install wireguard-tools chrony mosquitto mosquitto-clients
+   sudo apt install wireguard-tools chrony mosquitto mosquitto-clients python3-full python3-pip
    ```
 4. **Clone repository configurations**:
    ```bash
@@ -149,4 +155,32 @@ For flashing, `make flash` in the case of ESP8266_RTOS_SDK (for ESP8266). `idf.p
    sudo systemctl enable wg-quick@wg0.service
    sudo systemctl daemon-reload
    sudo systemctl start mosquitto chrony wg-quick@wg0.service
+   ```
+
+## Test scripts
+
+1. **Virtual enviornment for paho-MQTT**:
+   ```bash
+   python3 -m venv ~/paho
+   source ~/paho/bin/activate
+   pip install paho-mqtt
+   ```
+2. **Clone repository**:
+   ```bash
+   mkdir ~/scripts
+   cd ~/scripts
+   git clone https://github.com/ChavanVarad/esp_mqtt_benchmarks/tree/main/server_scripts
+   ```
+3. **Running the tests**:
+   RTT tests:
+   ```bash
+   python3 rtt.py
+   ```
+   Throughput tests:
+   ```bash
+   python3 throughput.py
+   ```
+   Power tests:
+   ```bash
+   python3 power.py
    ```
