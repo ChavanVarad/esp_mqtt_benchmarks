@@ -1,4 +1,4 @@
-#Introduction
+# Introduction
 
 This is the public GitHub repo for Varad Chavan's Cyber Security Master's Dissertation at Lancaster University.
 
@@ -118,13 +118,13 @@ cd esp_mqtt_benchmarks
 
 5. Exit the configuration menu and save your settings.
 
-##Flashing
+## Flashing
 
 For flashing, `make flash` in the case of ESP8266_RTOS_SDK (for ESP8266). `idf.py flash` in the case of ESP-IDF (for ESP32).
 
-#Raspberry Pi setup
+# Raspberry Pi setup
 
-##Configurations
+## Configurations
 
 1. **Operating System**: Flash the Raspberry Pi with `Raspbian (Bookworm)` using the Raspberry Pi imager.
 2. **Update repositories**: `sudo apt update` and `sudo apt upgrade` before installing any necessary packages.
