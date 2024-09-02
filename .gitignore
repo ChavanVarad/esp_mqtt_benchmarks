@@ -3,28 +3,28 @@
 
 
 ##dot files for all tests
-tls/*.swp
-tls/.vscode
-wg/*.swp
-wg/.vscode
-ue/*.swp
-ue/.vscode
+esp_idf_source/tls/*.swp
+esp_idf_source/tls/.vscode
+esp_idf_source/wg/*.swp
+esp_idf_source/wg/.vscode
+esp_idf_source/ue/*.swp
+esp_idf_source/ue/.vscode
 
 
 ##Build files for all tests
-tls/build/*
-wg/build/*
-ue/build/*
+esp_idf_source/tls/build/*
+esp_idf_source/wg/build/*
+esp_idf_source/ue/build/*
 
-tls/build
-wg/build
-ue/build
+esp_idf_source/tls/build
+esp_idf_source/wg/build
+esp_idf_source/ue/build
 
 ##sdkconfigs for all
-tls/sdkconfig
-wg/sdkconfig
-ue/sdkconfig
+esp_idf_source/tls/sdkconfig
+esp_idf_source/wg/sdkconfig
+esp_idf_source/ue/sdkconfig
 
-tls/sdkconfig.*
-wg/sdkconfig.*
-ue/sdkconfig.*
+esp_idf_source/tls/sdkconfig.*
+esp_idf_source/wg/sdkconfig.*
+esp_idf_source/ue/sdkconfig.*
