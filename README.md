@@ -3,7 +3,8 @@
 This is the public GitHub repo for Varad Chavan's Cyber Security Master's Dissertation at Lancaster University.
 
 This guide assumes that the local network tested on is in the IP range `192.168.0.0/24`, and the Raspberry Pi server has been assigned a static IP address `192.168.0.199`. Setup for all three ESP chips when testing threat model haven't been provided here, just the test metrics.
-Note: There are public/private keypairs provided here that were used in a local isolated environment, hence aren't considered "unsafe" for tets purposes. This is purely for convenience. Use newly generated secrets for other deployments.
+
+#### Note: There are public/private keypairs provided here that were used in a local isolated environment, hence aren't considered "unsafe" for tets purposes. This is purely for convenience. Use newly generated secrets for other deployments.
 
 # ESP32 and ESP8266 setup
 
