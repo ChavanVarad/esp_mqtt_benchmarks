@@ -4,8 +4,8 @@ This is the public GitHub repo for Varad Chavan's Cyber Security Master's Disser
 
 This guide assumes that the local network tested on is in the IP range `192.168.0.0/24`, and the Raspberry Pi server has been assigned a static IP address `192.168.0.199`. Setup for all three ESP chips when testing threat model haven't been provided here, just the test metrics. Installation of ESP-IDf and ESP_8266_RTOS_SDK can be done by following their respective guides:
 
-1. **ESP8266_RTOS_SDK**: GitHub(https://github.com/espressif/ESP8266_RTOS_SDK)
-2. **ESP-IDF**: GitHub(https://github.com/espressif/esp-idf)
+1. **ESP8266_RTOS_SDK**: [GitHub](https://github.com/espressif/ESP8266_RTOS_SDK)
+2. **ESP-IDF**: [GitHub](https://github.com/espressif/esp-idf)
 
 
 #### Note: There are public/private keypairs provided here that were used in a local isolated environment, hence aren't considered "unsafe" for test purposes. This is purely for convenience. Use newly generated secrets for other deployments.
