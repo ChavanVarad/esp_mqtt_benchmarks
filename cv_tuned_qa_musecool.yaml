@@ -1,0 +1,87 @@
+cv:
+  name: "Varad Chavan"
+  location: "London, UK"
+  email: "varadrchavan@gmail.com"
+  phone: "+447543808146"
+  website:
+  social_networks:
+    - network: "LinkedIn"
+      username: "chavanv"
+    - network: "GitHub"
+      username: "ChavanVarad"
+  sections:
+    Professional Summary:
+      - 'QA Engineer with 2+ years building test automation and quality processes for production SaaS platforms. Specialized in testing real-time interactive systems, audio-dependent features, and multimedia applications. Strong background in automated testing (Cypress), CI/CD pipelines, and cross-platform validation. Music enthusiast with hands-on experience testing IoT devices and embedded systems. Excited to apply startup testing experience and technical versatility to music EdTech challenges.'
+    education:
+      - institution: "Lancaster University"
+        area: "Cyber Security"
+        degree: "M.Sc."
+        date:
+        start_date: "2023-10"
+        end_date: "2024-09"
+        location: "Lancaster, UK"
+        summary: "Relevant Coursework: Network Systems Security, Digital Forensics, Penetration Testing (manual testing methodologies), Information Security Management"
+      - institution: "Mumbai University"
+        area: "Electronics and Telecommunication"
+        degree: "B.E."
+        date:
+        start_date: "2019-09"
+        end_date: "2023-08"
+        location: "Mumbai, India"
+        summary: "Relevant Coursework: Python Programming, Embedded Systems Testing, Signal Processing, Real-time Systems, Linux Administration"
+        highlights:
+    experience:
+      - company: "vcpulse.io Ltd."
+        position: "QA Engineer & Systems Engineer"
+        date:
+        start_date: "2023-12"
+        end_date: "present"
+        location: "London, UK"
+        summary:
+        highlights:
+          - "Built end-to-end QA processes from scratch for two SaaS platforms, establishing test plans, automation frameworks, and bug tracking workflows across the full development lifecycle."
+          - "Designed and implemented comprehensive Cypress test automation suite covering UI transitions, timing-sensitive features, and cross-browser compatibility; reduced manual testing time by 70% and enabled zero-downtime releases."
+          - "Established automated quality gates integrating Snyk vulnerability scanning with Sentry monitoring, catching 80%+ of bugs and security issues pre-deployment through continuous testing pipelines."
+          - "Validated real-time interactive features and AI analytics integrations (Weaviate VectorDB with RAG), writing reproducible test cases for edge cases and performance regressions."
+          - "Collaborated with engineering teams to define testing requirements, reproduce complex bugs, and validate fixes across web applications and backend services."
+          - "Deployed and maintained CI/CD pipelines with GitHub Actions and Google Cloud, integrating automated testing at every stage to ensure production reliability."
+    projects:
+      - name: "Real-time Audio & IoT Testing Framework"
+        date:
+        location:
+        summary:
+        highlights:
+          - "Built Python-based testing framework to validate real-time performance of IoT devices and audio streaming systems, measuring RTT latency, throughput, and timing synchronization across network protocols."
+          - "Developed automated test suites for ESP-based IoT devices orchestrated via Raspberry Pi Docker Swarm, validating MQTT messaging reliability, device responsiveness, and timing accuracy under various network conditions."
+          - "Tested interactive features across Home Assistant smart home platform and custom Alexa integrations, ensuring consistent behavior across devices and voice interfaces."
+          - "Validated secure remote access implementations (WireGuard VPN, Cloudflare Tunnel) through penetration testing and edge case validation, reducing security vulnerabilities by 66%."
+      - name: "Multimedia Platform Testing & Monitoring"
+        date:
+        location:
+        summary:
+        highlights:
+          - "Established production-grade monitoring infrastructure using Prometheus/Grafana to track system health, performance metrics, and uptime for services supporting 10+ active users with 99.9% availability."
+          - "Performed cross-platform testing across hybrid cloud infrastructure (Oracle Cloud + on-premises VMs), validating service reliability, SSL/TLS implementations, and HTTP3 optimization."
+          - "Built automated testing workflows for web services, reverse proxy configurations, and DNS systems (Pi-hole), ensuring consistent functionality across browsers and devices."
+          - "Reduced operational costs by 75% through rigorous testing and validation of self-hosted infrastructure migration, proving reliability before production deployment."
+      - name: "Dissertation: Performance Testing of Secure IoT Communication"
+        date:
+        location:
+        summary:
+        highlights:
+          - "Designed and executed comprehensive performance testing suite for IoT devices under various security protocols (WireGuard VPN, TLS, plaintext), measuring timing, throughput, and resource constraints."
+          - "Developed Python testing frameworks to benchmark real-time communication latency and validate security improvements on resource-constrained embedded devices."
+          - "Performed validation testing using Nmap, Wireshark, and custom scripts to verify security enhancements and identify edge cases in IoT network isolation."
+    skills:
+      - label: "Test Automation & QA Tools"
+        details: "Cypress (2+ years production experience), Playwright concepts, Jest, Python testing frameworks, Manual testing, Regression testing, Integration testing, Bug reproduction and reporting"
+      - label: "Testing Specializations"
+        details: "Real-time systems testing, Interactive feature validation, Timing and latency testing, Audio/multimedia testing frameworks, Cross-browser testing, IoT and embedded device testing, Edge case identification, Performance testing and benchmarking"
+      - label: "DevOps & CI/CD"
+        details: "GitHub Actions, CI/CD pipeline integration, Docker, Kubernetes, Automated quality gates, Infrastructure as Code (IAC), Git workflows"
+      - label: "Technologies & Platforms"
+        details: "Sentry monitoring, Snyk security scanning, Prometheus/Grafana observability, Firebase, MQTT, WebSockets, REST APIs, Next.js, React, Node.js, PostgreSQL, Cloudflare"
+      - label: "Technical Skills"
+        details: "Python, TypeScript, Bash scripting, Linux administration, Network protocols (TCP/IP, UDP, DNS, DHCP), Wireshark, Nmap, Burp Suite, Metasploit, VPN protocols, SSL/TLS"
+      - label: "Music & Audio Background"
+        details: "Amateur musician with understanding of audio systems, timing, and rhythm; Experience testing real-time MQTT communication and low-latency systems applicable to audio feedback loops; Interest in music education technology"
